@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Rubik 3D iPad</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+      font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: white;
+      font-size: 32px;
+      margin-bottom: 20px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .viewport {
+      width: 100%;
+      max-width: 600px;
+      height: 500px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 1200px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .cube-container {
+      width: 300px;
+      height: 300px;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(-25deg) rotateY(30deg);
+      animation: spin 8s infinite linear;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotateX(-25deg) rotateY(0deg);
+      }
+      to {
+        transform: rotateX(-25deg) rotateY(360deg);
+      }
+    }
+
+    .cube-face {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .cube-sticker {
+      width: 30px;
+      height: 30px;
+      margin: 2px;
+      border-radius: 5px;
+      border: 1px solid rgba(0, 0, 0, 0.3);
+      box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.4);
+    }
+
+    /* Định vị 6 mặt của khối Rubik */
+    .front {
+      transform: translateZ(150px);
+      background-color: #22c55e;
+    }
+
+    .back {
+      transform: rotateY(180deg) translateZ(150px);
+      background-color: #3b82f6;
+    }
+
+    .right {
+      transform: rotateY(90deg) translateZ(150px);
+      background-color: #f97316;
+    }
+
+    .left {
+      transform: rotateY(-90deg) translateZ(150px);
+      background-color: #ef4444;
+    }
+
+    .top {
+      transform: rotateX(90deg) translateZ(150px);
+      background-color: #f9fafb;
+    }
+
+    .bottom {
+      transform: rotateX(-90deg) translateZ(150px);
+      background-color: #facc15;
+    }
+
+    .controls {
+      margin-top: 30px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      color: white;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #34d399, #059669);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #60a5fa, #1d4ed8);
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #fbbf24, #d97706);
+    }
+
+    .move-buttons {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      max-width: 500px;
+    }
+
+    .move-buttons button {
+      padding: 10px 8px;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .status {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+      margin-top: 15px;
+      text-align: center;
+      min-height: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .move-buttons {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      h1 {
+        font-size: 24px;
+      }
+      .viewport {
+        height: 400px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎲 Rubik 3D</h1>
+    
+    <div class="viewport">
+      <div class="cube-container" id="cube">
+        <div class="cube-face front"></div>
+        <div class="cube-face back"></div>
+        <div class="cube-face right"></div>
+        <div class="cube-face left"></div>
+        <div class="cube-face top"></div>
+        <div class="cube-face bottom"></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-primary" onclick="scramble()">Xáo trộn</button>
+      <button class="btn-secondary" onclick="solve()">Giải</button>
+      <button class="btn-warning" onclick="reset()">Reset</button>
+    </div>
+
+    <div class="move-buttons" id="movePad">
+      <button onclick="rotateMove('U')">U</button>
+      <button onclick="rotateMove('D')">D</button>
+      <button onclick="rotateMove('F')">F</button>
+      <button onclick="rotateMove('B')">B</button>
+      <button onclick="rotateMove('L')">L</button>
+      <button onclick="rotateMove('R')">R</button>
+      <button onclick="rotateMove('U2')">U'</button>
+      <button onclick="rotateMove('D2')">D'</button>
+      <button onclick="rotateMove('F2')">F'</button>
+      <button onclick="rotateMove('B2')">B'</button>
+      <button onclick="rotateMove('L2')">L'</button>
+      <button onclick="rotateMove('R2')">R'</button>
+    </div>
+
+    <div class="status" id="status">Sẵn sàng - vuốt để xoay khối</div>
+  </div>
+
+  <script>
+    const cube = document.getElementById('cube');
+    const status = document.getElementById('status');
+    let rotX = -25;
+    let rotY = 30;
+    let isAnimating = false;
+    let moves = [];
+
+    // Touch/Mouse control
+    let startX, startY;
+    let isDragging = false;
+
+    cube.parentElement.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      rotY += dx * 0.5;
+      rotX += dy * 0.5;
+      cube.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+      startX = e.clientX;
+      startY = e.clientY;
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    // Touch support
+    cube.parentElement.addEventListener('touchstart', (e) => {
+      isDragging = true;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    });
+
+    document.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      rotY += dx * 0.5;
+      rotX += dy * 0.5;
+      cube.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    });
+
+    document.addEventListener('touchend', () => {
+      isDragging = false;
+    });
+
+    function rotateFace(face, angle) {
+      const faces = document.querySelectorAll('.cube-face');
+      faces.forEach(f => {
+        if (f.classList.contains(face)) {
+          f.style.transform = `rotate(${angle}deg)`;
+        }
+      });
+    }
+
+    function rotateMove(move) {
+      if (isAnimating) return;
+      isAnimating = true;
+      
+      const faceMap = {
+        'U': 'top',
+        'D': 'bottom',
+        'F': 'front',
+        'B': 'back',
+        'L': 'left',
+        'R': 'right'
+      };
+
+      const face = move.charAt(0);
+      const angle = move.length > 1 ? -90 : 90;
+      
+      rotateFace(faceMap[face], angle);
+      moves.push(move);
+      status.textContent = `Chuyển: ${move}`;
+      
+      setTimeout(() => {
+        isAnimating = false;
+      }, 300);
+    }
+
+    function scramble() {
+      if (isAnimating) return;
+      status.textContent = 'Đang xáo trộn...';
+      const moveList = ['U', 'D', 'F', 'B', 'L', 'R'];
+      const scrambleMoves = [];
+      
+      for (let i = 0; i < 20; i++) {
+        const face = moveList[Math.floor(Math.random() * moveList.length)];
+        const prime = Math.random() > 0.5;
+        scrambleMoves.push(face + (prime ? '2' : ''));
+      }
+
+      let delay = 0;
+      scrambleMoves.forEach(move => {
+        setTimeout(() => {
+          rotateMove(move);
+        }, delay);
+        delay += 150;
+      });
+
+      setTimeout(() => {
+        status.textContent = `Đã xáo trộn: ${scrambleMoves.join(' ')}`;
+      }, delay + 100);
+    }
+
+    function solve() {
+      if (isAnimating) return;
+      status.textContent = 'Giải khối Rubik...';
+      
+      // Đảo ngược lại tất cả các nước đi
+      let delay = 0;
+      for (let i = moves.length - 1; i >= 0; i--) {
+        const move = moves[i];
+        const reverseMove = move.length > 1 ? move.charAt(0) : move + '2';
+        
+        setTimeout(() => {
+          rotateMove(reverseMove);
+        }, delay);
+        delay += 150;
+      }
+
+      setTimeout(() => {
+        status.textContent = 'Đã giải xong!';
+        moves = [];
+      }, delay + 100);
+    }
+
+    function reset() {
+      if (isAnimating) return;
+      moves = [];
+      document.querySelectorAll('.cube-face').forEach(face => {
+        face.style.transform = 'rotate(0deg)';
+      });
+      rotX = -25;
+      rotY = 30;
+      cube.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+      status.textContent = 'Đã reset';
+    }
+  </script>
+</body>
+</html>
